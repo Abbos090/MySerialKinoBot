@@ -6,8 +6,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-
 from config import TOKEN
+
 from Handlers.admin import router as admin_router
 from Handlers.admin_delete import router as delete_router
 from Handlers.admin_create_serial import router as serial_cr_router
@@ -31,6 +31,7 @@ async def main() -> None:
     dp.include_router(user_serial)
 
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
