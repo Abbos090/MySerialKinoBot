@@ -1,7 +1,22 @@
+import os
+from urllib.parse import urlparse
 import psycopg2
 
+def get_connection():
+    db_url = os.getenv("DATABASE_URL")
+    result = urlparse(db_url)
+
+    return psycopg2.connect(
+        database=result.path[1:],
+        user=result.username,
+        password=result.password,
+        host=result.hostname,
+        port=result.port
+    )
+
+
 def delete_serials_db(serial_id):
-    conn = psycopg2.connect(dbname="postgres", user="postgres", password="1221")
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("DELETE FROM serials WHERE serial_id = %s", (serial_id,))
@@ -15,7 +30,7 @@ def delete_serials_db(serial_id):
 
 
 def delete_serial_qism_db(qism_id):
-    conn = psycopg2.connect(dbname="postgres", user="postgres", password="1221")
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("DELETE FROM serial WHERE serial_id = %s", (qism_id,))

@@ -1,7 +1,21 @@
+import os
+from urllib.parse import urlparse
 import psycopg2
-def create_serial_db(data):
-    conn = psycopg2.connect(dbname="postgres", user="postgres", password="1221")
 
+def get_connection():
+    db_url = os.getenv("DATABASE_URL")
+    result = urlparse(db_url)
+
+    return psycopg2.connect(
+        database=result.path[1:],
+        user=result.username,
+        password=result.password,
+        host=result.hostname,
+        port=result.port
+    )
+
+def create_serial_db(data):
+    conn = get_connection()
     cur = conn.cursor()
 
     query = "INSERT INTO serials (serial_id, serial_name, serial_language, serial_janr, serial_year) VALUES (%s, %s, %s, %s, %s);"
