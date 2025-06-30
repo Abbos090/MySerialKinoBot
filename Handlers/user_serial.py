@@ -73,14 +73,17 @@ async def user_choose_range(message: Message, state: FSMContext):
     serial_fasl = data["serial_fasl"]
 
     try:
-        range_text = message.text.split()[-2]
+        range_text = message.text.strip().split()[0]  # "1-10"
         start, end = map(int, range_text.split("-"))
         all_episodes = get_serial_all(serial_name, serial_fasl)
-        selected_eps = all_episodes[start-1:end]
+
+        selected_eps = all_episodes[start - 1:end]
 
         for seria in selected_eps:
             caption = generate_caption(seria)
             await message.answer_video(video=seria[8], caption=caption)
 
     except Exception as e:
-        await message.answer("Qismlar oralig'ini aniqlab bo'lmadi.")
+        print(f"❌ Xatolik: {e}")
+        await message.answer(f"❌ Qismlar oralig'ini aniqlab bo'lmadi.\n{e}")
+
