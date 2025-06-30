@@ -2,6 +2,8 @@ from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
+import re
+
 from Database.user_serial import get_serial_all, get_serial_fasl
 from Keyboards.select_serials_kb import get_serials_keyboard
 from Keyboards.serial_fasl import get_serial_fasl_kb
@@ -60,6 +62,8 @@ async def user_choose_fasl(message: Message, state: FSMContext):
 
 
 
+
+
 @router.message(UserSerialState.choose_qismlar)
 async def user_choose_range(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":
@@ -73,11 +77,13 @@ async def user_choose_range(message: Message, state: FSMContext):
     serial_fasl = data["serial_fasl"]
 
     try:
-        range_text = message.text.strip().split()[0]  # "1-10"
-        start, end = map(int, range_text.split("-"))
-        all_episodes = get_serial_all(serial_name, serial_fasl)
+        match = re.search(r"(\d+)-(\d+)", message.text)
+        if not match:
+            raise ValueError("Qismlar oralig'i topilmadi.")
+        start, end = map(int, match.groups())
 
-        selected_eps = all_episodes[start - 1:end]
+        all_episodes = get_serial_all(serial_name, serial_fasl)
+        selected_eps = all_episodes[start-1:end]
 
         for seria in selected_eps:
             caption = generate_caption(seria)
@@ -85,5 +91,5 @@ async def user_choose_range(message: Message, state: FSMContext):
 
     except Exception as e:
         print(f"❌ Xatolik: {e}")
-        await message.answer(f"❌ Qismlar oralig'ini aniqlab bo'lmadi.\n{e}")
+        await message.answer(f"❌ Qismlar oralig'ini aniqlab bo‘lmadi.\nXatolik: {e}")
 
