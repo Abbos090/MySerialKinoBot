@@ -32,7 +32,7 @@ def select_serial_id_db(serial_id):
 
 
 def select_kino_id_db(kino_id):
-    conn = psycopg2.connect(dbname='postgres', user='postgres', password='1221')
+    conn = get_connection()
     cur = conn.cursor()
 
     try:

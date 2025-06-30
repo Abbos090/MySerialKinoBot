@@ -17,7 +17,7 @@ async def admin_kino_add_id_handler(message: Message, state: FSMContext):
         await state.set_state(AdminState.add_remove)
         return
     if kino_id.isdigit():
-        if select_kino_id_db(kino_id):
+        if select_kino_id_db(int(kino_id)):
             await message.answer("Bu idli kino sizda mavjud. Iltimos boshqa id kiriting")
         else:
             await message.answer("Kinoni nomini kiriting")
