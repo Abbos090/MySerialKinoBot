@@ -30,7 +30,7 @@ async def admin_add_serial_handler(message: Message, state: FSMContext):
 async def admin_add_qismid_handler(message: Message, state: FSMContext):
     qism_id = message.text
     if qism_id.isdigit():
-        if select_serial_id_db(qism_id):
+        if select_serial_id_db(int(qism_id)):
             await message.answer("Bu idli kino sizda mavjud. Iltimos boshqa id kiriting")
         else:
             await message.answer("Serialning faslini kiriting")
