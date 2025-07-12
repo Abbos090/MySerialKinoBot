@@ -12,24 +12,19 @@ from Keyboards.delete_serial_kino_kb import delete_serial_kino
 from Keyboards.orqaga import orqaga
 from Keyboards.user_kino_serial import user_choose_kb
 
-from Utils.check_sub_kb import confirm_subs_keyboard
 from Utils.check_subs import check_user_subscriptions
+from Utils.check_sub_kb import confirm_subs_keyboard
 
 router = Router()
 
 
-# /start komandasi va dastlabki kirish
 @router.message(CommandStart())
 async def start_handler(message: Message, state: FSMContext, bot: Bot):
     not_subscribed = await check_user_subscriptions(bot, message.from_user.id)
     if not_subscribed:
-        links = "\n".join(
-            [f"👉 <a href='https://t.me/{ch[1:]}'>{ch}</a>" for ch in not_subscribed]
-        )
         await message.answer(
-            f"Botdan foydalanish uchun quyidagi kanallarga obuna bo‘ling:\n\n{links}",
-            reply_markup=confirm_subs_keyboard(),
-            disable_web_page_preview=True
+            "⚠️ Botdan foydalanish uchun quyidagi kanallarga obuna bo‘ling:",
+            reply_markup=confirm_subs_keyboard(not_subscribed)
         )
         return
 
@@ -41,21 +36,17 @@ async def start_handler(message: Message, state: FSMContext, bot: Bot):
         await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb)
 
 
-# Obuna bo‘ldim tugmasi bosilganda tekshiradi
 @router.callback_query(F.data == "check_subs")
 async def confirm_subs_callback(callback: CallbackQuery, bot: Bot, state: FSMContext):
     not_subscribed = await check_user_subscriptions(bot, callback.from_user.id)
     if not_subscribed:
-        links = "\n".join(
-            [f"👉 <a href='https://t.me/{ch[1:]}'>{ch}</a>" for ch in not_subscribed]
-        )
         await callback.message.edit_text(
-            f"⚠️ Hali quyidagi kanallarga obuna bo‘lmagansiz:\n\n{links}",
-            reply_markup=confirm_subs_keyboard(),
-            disable_web_page_preview=True
+            "⚠️ Hali quyidagi kanallarga obuna bo‘lmagansiz:",
+            reply_markup=confirm_subs_keyboard(not_subscribed)
         )
     else:
         await callback.message.delete()
+
         if callback.from_user.id in ADMINS:
             await callback.message.answer("Xush kelibsiz admin!", reply_markup=admin_keyboard)
             await state.set_state(AdminState.add_remove)
