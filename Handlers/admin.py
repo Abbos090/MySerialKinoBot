@@ -1,7 +1,7 @@
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 
 from config import ADMINS
 from States.admin_add_states import AdminState, AdminCreateSerialState, AdminSerialAdd, AdminKinoAdd
@@ -12,11 +12,23 @@ from Keyboards.delete_serial_kino_kb import delete_serial_kino
 from Keyboards.orqaga import orqaga
 from Keyboards.user_kino_serial import user_choose_kb
 
+from Utils.check_subs import check_user_subscriptions  # ✅ Obuna tekshiruvchi funksiya
 
 router = Router()
 
 @router.message(CommandStart() or AdminState.add_remove)
-async def admin_start_handler(message: Message, state: FSMContext):
+async def admin_start_handler(message: Message, state: FSMContext, bot: Bot):
+    # ✅ Obuna tekshirish
+    not_subscribed = await check_user_subscriptions(bot, message.from_user.id)
+    if not_subscribed:
+        links = "\n".join([f"👉 <a href='{url}'>Kanalga obuna bo‘ling</a>" for url in not_subscribed])
+        await message.answer(
+            f"Botdan foydalanish uchun quyidagi kanallarga obuna bo‘ling:\n\n{links}",
+            disable_web_page_preview=True
+        )
+        return
+
+    # ✅ Foydalanuvchini aniqlash
     if message.from_user.id in ADMINS:
         await message.answer("Xush kelibsiz admin!", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
@@ -45,7 +57,7 @@ async def admin_delete_serial_kino(message: Message, state: FSMContext):
         await message.answer("Serial idsini kiriting", reply_markup=orqaga)
         await state.set_state(AdminDeleteSerial.serial_name)
     elif message.text == "Kino":
-        await message.answer("Kino idsini kiriting",reply_markup=orqaga)
+        await message.answer("Kino idsini kiriting", reply_markup=orqaga)
         await state.set_state(AdminDeleteKino.kino_id)
     elif message.text == "Serial qismi":
         await message.answer("Serial qismini idsini kiriting", reply_markup=orqaga)
