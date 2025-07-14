@@ -12,7 +12,7 @@ router = Router()
 async def admin_cr_id_handler(message: Message, state: FSMContext):
     serial_id = message.text
     if serial_id == '🔙 orqaga':
-        await message.answer("Tanlang", reply_markup=admin_keyboard)
+        await message.answer("Asosiy menu :", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
         return
     if serial_id.isdigit():
@@ -25,6 +25,10 @@ async def admin_cr_id_handler(message: Message, state: FSMContext):
 @router.message(AdminCreateSerialState.serial_name)
 async def admin_cr_name_handler(message: Message, state: FSMContext):
     serial_name = message.text
+    if serial_name == '🔙 orqaga':
+        await state.set_state(AdminCreateSerialState.serial_id)
+        await message.answer("Serial idsini kiriting")
+        return
     await message.answer("Serial tilini kiriting")
     await state.set_state(AdminCreateSerialState.serial_language)
     await state.update_data(serial_name=serial_name)
@@ -32,6 +36,10 @@ async def admin_cr_name_handler(message: Message, state: FSMContext):
 @router.message(AdminCreateSerialState.serial_language)
 async def admin_cr_language_handler(message: Message, state: FSMContext):
     language = message.text
+    if language == '🔙 orqaga':
+        await state.set_state(AdminCreateSerialState.serial_name)
+        await message.answer("Serial nomini kiriting")
+        return
     await message.answer("Serial janrini kiriting")
     await state.set_state(AdminCreateSerialState.serial_janr)
     await state.update_data(serial_language=language)
@@ -39,6 +47,10 @@ async def admin_cr_language_handler(message: Message, state: FSMContext):
 @router.message(AdminCreateSerialState.serial_janr)
 async def admin_cr_janr_handler(message: Message, state: FSMContext):
     janr = message.text
+    if janr == '🔙 orqaga':
+        await state.set_state(AdminCreateSerialState.serial_language)
+        await message.answer("Serial tilini kiriting")
+        return
     await message.answer("Serial yilini kiriting")
     await state.set_state(AdminCreateSerialState.serial_year)
     await state.update_data(serial_janr=janr)
@@ -47,6 +59,10 @@ async def admin_cr_janr_handler(message: Message, state: FSMContext):
 @router.message(AdminCreateSerialState.serial_year)
 async def admin_cr_year_handler(message: Message, state: FSMContext):
     year = message.text
+    if year == '🔙 orqaga':
+        await state.set_state(AdminCreateSerialState.serial_janr)
+        await message.answer("Serial janrini kiriting")
+        return
     if year.isdigit():
         try:
             await state.update_data(serial_year=year)

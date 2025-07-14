@@ -7,6 +7,8 @@ from Database.add_serial import add_serial_db
 from Database.select_serial_kino_id import select_serial_id_db
 from States.admin_add_states import AdminSerialAdd, AdminState
 from Keyboards.admin_keyboards import admin_keyboard
+from Keyboards.select_serials_kb import get_serials_keyboard
+from Keyboards.orqaga import orqaga
 
 router = Router()
 
@@ -15,13 +17,13 @@ async def admin_add_serial_handler(message: Message, state: FSMContext):
     serial_name = message.text.strip().lower()  # bo‘sh joylarni olib tashlaydi va kichik harfga o‘tkazadi
 
     if serial_name == '🔙 orqaga'.lower():  # moslashtirilgan solishtirish
-        await message.answer("Tanlang", reply_markup=admin_keyboard)
+        await message.answer("Asosiy menu :", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
         return  # boshqa kodlar bajarilmasligi uchun
 
     # pastda faqat serial bo‘lsa ishlaydi
     serial_info = load_serials_db(message.text)  # asl nom bilan yuklab olamiz
-    await message.answer("Serial qismi idsini kiriting")
+    await message.answer("Serial qismi idsini kiriting", reply_markup=orqaga)
     await state.set_state(AdminSerialAdd.qism_id)
     await state.update_data(serial_info=serial_info)
 
@@ -29,6 +31,10 @@ async def admin_add_serial_handler(message: Message, state: FSMContext):
 @router.message(AdminSerialAdd.qism_id)
 async def admin_add_qismid_handler(message: Message, state: FSMContext):
     qism_id = message.text
+    if qism_id == '🔙 orqaga':
+        await state.set_state(AdminSerialAdd.serial)
+        await message.answer("Qaysi serialga qo'shmoqchisiz", reply_markup=get_serials_keyboard())
+        return
     if qism_id.isdigit():
         if select_serial_id_db(int(qism_id)):
             await message.answer("Bu idli serial_qism sizda mavjud. Iltimos boshqa id kiriting")
@@ -42,6 +48,10 @@ async def admin_add_qismid_handler(message: Message, state: FSMContext):
 @router.message(AdminSerialAdd.fasl)
 async def admin_add_fasl_handler(message: Message, state: FSMContext):
     fasl = message.text
+    if fasl == '🔙 orqaga':
+        await state.set_state(AdminSerialAdd.qism_id)
+        await message.answer("Serial qismi idsini kiriting")
+        return
     if fasl.isdigit():
         await message.answer("Serialni qismini kiriting")
         await state.set_state(AdminSerialAdd.qism)
@@ -52,6 +62,10 @@ async def admin_add_fasl_handler(message: Message, state: FSMContext):
 @router.message(AdminSerialAdd.qism)
 async def admin_add_qism_handler(message: Message, state: FSMContext):
     qism = message.text
+    if qism == '🔙 orqaga':
+        await state.set_state(AdminSerialAdd.fasl)
+        await message.answer("Serialning faslini kiriting")
+        return
     if qism.isdigit():
         await message.answer("Video jo'nating")
         await state.set_state(AdminSerialAdd.video)
@@ -61,6 +75,10 @@ async def admin_add_qism_handler(message: Message, state: FSMContext):
 
 @router.message(AdminSerialAdd.video)
 async def admin_add_video_handler(message: Message, state: FSMContext):
+    if message.text == '🔙 orqaga':
+        await state.set_state(AdminSerialAdd.qism)
+        await message.answer("Serialni qismini kiriting")
+        return
     video = message.video
     if video:
         await state.update_data(video_id=video.file_id)

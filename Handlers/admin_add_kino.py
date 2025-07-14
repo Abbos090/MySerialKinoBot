@@ -29,6 +29,10 @@ async def admin_kino_add_id_handler(message: Message, state: FSMContext):
 @router.message(AdminKinoAdd.kino_name)
 async def admin_kino_add_name_handler(message: Message, state: FSMContext):
     name = message.text
+    if name == '🔙 orqaga':
+        await state.set_state(AdminKinoAdd.kino_id)
+        await message.answer("Kinoni idsini kiriting")
+        return
     await message.answer("Kino tilini kiriting")
     await state.update_data(name=name)
     await state.set_state(AdminKinoAdd.kino_language)
@@ -36,6 +40,10 @@ async def admin_kino_add_name_handler(message: Message, state: FSMContext):
 @router.message(AdminKinoAdd.kino_language)
 async def admin_kino_add_language_handler(message: Message, state: FSMContext):
     language = message.text
+    if language == '🔙 orqaga':
+        await state.set_state(AdminKinoAdd.kino_name)
+        await message.answer("Kinoni nomini kiriting")
+        return
     await message.answer("Kino ishlab chiqarilgan yilini kiriting")
     await state.update_data(language=language)
     await state.set_state(AdminKinoAdd.kino_year)
@@ -44,6 +52,10 @@ async def admin_kino_add_language_handler(message: Message, state: FSMContext):
 @router.message(AdminKinoAdd.kino_year)
 async def admin_kino_add_year_handler(message: Message, state: FSMContext):
     year = message.text
+    if year == '🔙 orqaga':
+        await state.set_state(AdminKinoAdd.kino_language)
+        await message.answer("Kinoni tilini kiriting")
+        return
     if year.isdigit():
         await message.answer("Kino janrini kiriting")
         await state.update_data(year=year)
@@ -54,6 +66,10 @@ async def admin_kino_add_year_handler(message: Message, state: FSMContext):
 @router.message(AdminKinoAdd.kino_janr)
 async def admin_kino_add_janr_handler(message: Message, state: FSMContext):
     janr = message.text
+    if janr == '🔙 orqaga':
+        await state.set_state(AdminKinoAdd.kino_year)
+        await message.answer("Kinoni ishlab chiqarilgan yilini kiriting")
+        return
     await message.answer("Kino qismini kiriting")
     await state.update_data(janr=janr)
     await state.set_state(AdminKinoAdd.kino_qism)
@@ -62,6 +78,10 @@ async def admin_kino_add_janr_handler(message: Message, state: FSMContext):
 @router.message(AdminKinoAdd.kino_qism)
 async def admin_kino_add_qism_handler(message: Message, state: FSMContext):
     qism = message.text
+    if qism == '🔙 orqaga':
+        await state.set_state(AdminKinoAdd.kino_janr)
+        await message.answer("Kinoni janrini kiriting")
+        return
     if qism.isdigit():
         await message.answer("Video jo'nating")
         await state.update_data(qism=qism)
@@ -71,6 +91,10 @@ async def admin_kino_add_qism_handler(message: Message, state: FSMContext):
 
 @router.message(AdminKinoAdd.vide_id)
 async def admin_kino_add_video_handler(message: Message, state: FSMContext):
+    if message.text == '🔙 orqaga':
+        await state.set_state(AdminKinoAdd.kino_qism)
+        await message.answer("Kinoni qismini kiriting kiriting")
+        return
     video = message.video
     if video:
         await state.update_data(video_id=video.file_id)

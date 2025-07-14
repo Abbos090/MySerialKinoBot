@@ -21,7 +21,7 @@ def generate_caption(seria: tuple) -> str:
         f"🎬 Nomi: {serial_name}\n"
         f"🌐 Til: {serial_language}\n"
         f"🎭 Janr: {serial_janr}\n"
-        f"📆 Yili: {serial_year}\n"
+        f"📆 Yili: {serial_year}\n\n"
         f"🎞 Fasl: {serial_fasl} | Qism: {serial_qism}\n"
         f"⏱ Davomiyligi: {duration}"
     )

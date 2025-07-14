@@ -22,6 +22,8 @@ def delete_serials_db(serial_id):
     cur.execute("DELETE FROM serials WHERE serial_id = %s", (serial_id,))
     deleted = cur.rowcount  # o'chirilgan qatorlar soni
 
+    cur.execute("DELETE FROM serial WHERE serial_id = %s", (serial_id,))
+
     conn.commit()
     cur.close()
     conn.close()
@@ -43,7 +45,7 @@ def delete_serial_qism_db(qism_id):
     return deleted
 
 def delete_kino_db(kino_id):
-    conn = psycopg2.connect(dbname="postgres", user="postgres", password="1221")
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("DELETE FROM kinolar WHERE id = %s", (kino_id,))
