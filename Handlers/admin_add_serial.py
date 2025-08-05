@@ -80,8 +80,8 @@ async def admin_add_all_handler(message: Message, state: FSMContext):
         add_serial_db(data)
         await message.answer("Serial qo'shildi!", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
-    except:
-        await message.answer("Xatolik yuzaga keldi!", reply_markup=admin_keyboard)
+    except Exception as e:
+        await message.answer(f"Xatolik yuzaga keldi!, {e}", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
 
 
