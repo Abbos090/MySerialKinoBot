@@ -61,9 +61,6 @@ async def user_choose_fasl(message: Message, state: FSMContext):
         await message.answer("❌ Xatolik: Fasl va serial nomini aniqlab bo‘lmadi.")
 
 
-
-
-
 @router.message(UserSerialState.choose_qismlar)
 async def user_choose_range(message: Message, state: FSMContext):
     if message.text == "🔙 Orqaga":

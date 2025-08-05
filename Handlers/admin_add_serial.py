@@ -1,6 +1,7 @@
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.filters import Command
 
 from Database.load_serials import load_serials_db
 from Database.add_serial import add_serial_db
@@ -23,9 +24,11 @@ async def admin_add_serial_handler(message: Message, state: FSMContext):
 
     # pastda faqat serial bo‘lsa ishlaydi
     serial_info = load_serials_db(message.text)  # asl nom bilan yuklab olamiz
-    await message.answer("Serial qismi idsini kiriting", reply_markup=orqaga)
+    await message.answer("Serial qismi idsini oralig'ini kiriting, Masalan: 1 100", reply_markup=orqaga)
     await state.set_state(AdminSerialAdd.qism_id)
     await state.update_data(serial_info=serial_info)
+    await state.update_data(videos=[])
+    await state.update_data(seconds=[])
 
 
 @router.message(AdminSerialAdd.qism_id)
@@ -35,15 +38,11 @@ async def admin_add_qismid_handler(message: Message, state: FSMContext):
         await state.set_state(AdminSerialAdd.serial)
         await message.answer("Qaysi serialga qo'shmoqchisiz", reply_markup=get_serials_keyboard())
         return
-    if qism_id.isdigit():
-        if select_serial_id_db(int(qism_id)):
-            await message.answer("Bu idli serial_qism sizda mavjud. Iltimos boshqa id kiriting")
-        else:
-            await message.answer("Serialning faslini kiriting")
-            await state.set_state(AdminSerialAdd.fasl)
-            await state.update_data(qism_id=qism_id)
-    else:
-        await message.answer("Iltimos qismni id sini raqamda kiriting")
+
+    await message.answer("Serialning faslini kiriting")
+    await state.set_state(AdminSerialAdd.fasl)
+    await state.update_data(qism_ids=qism_id.split())
+
 
 @router.message(AdminSerialAdd.fasl)
 async def admin_add_fasl_handler(message: Message, state: FSMContext):
@@ -53,11 +52,12 @@ async def admin_add_fasl_handler(message: Message, state: FSMContext):
         await message.answer("Serial qismi idsini kiriting")
         return
     if fasl.isdigit():
-        await message.answer("Serialni qismini kiriting")
+        await message.answer("Serialni qismini oralig'ini kiriting, Masalan: 1 100")
         await state.set_state(AdminSerialAdd.qism)
         await state.update_data(serial_fasl=fasl)
     else:
         await message.answer("Iltimos faslni raqamda kiriting")
+
 
 @router.message(AdminSerialAdd.qism)
 async def admin_add_qism_handler(message: Message, state: FSMContext):
@@ -66,12 +66,24 @@ async def admin_add_qism_handler(message: Message, state: FSMContext):
         await state.set_state(AdminSerialAdd.fasl)
         await message.answer("Serialning faslini kiriting")
         return
-    if qism.isdigit():
-        await message.answer("Video jo'nating")
-        await state.set_state(AdminSerialAdd.video)
-        await state.update_data(serial_qism=qism)
-    else:
-        await message.answer("Iltimos qism raqam bo'lsin")
+
+    await message.answer("Videolarni jo'nating, toxtatish uchun /stop comandasini yozing")
+    await state.set_state(AdminSerialAdd.video)
+    await state.update_data(serial_qisms=qism.split())
+
+
+@router.message(Command("stop"))
+async def admin_add_all_handler(message: Message, state: FSMContext):
+    await message.answer("Videolar saqlanmoqda...")
+    try:
+        data = await state.get_data()
+        add_serial_db(data)
+        await message.answer("Serial qo'shildi!", reply_markup=admin_keyboard)
+        await state.set_state(AdminState.add_remove)
+    except:
+        await message.answer("Xatolik yuzaga keldi!", reply_markup=admin_keyboard)
+        await state.set_state(AdminState.add_remove)
+
 
 @router.message(AdminSerialAdd.video)
 async def admin_add_video_handler(message: Message, state: FSMContext):
@@ -79,14 +91,30 @@ async def admin_add_video_handler(message: Message, state: FSMContext):
         await state.set_state(AdminSerialAdd.qism)
         await message.answer("Serialni qismini kiriting")
         return
+
     video = message.video
     if video:
-        await state.update_data(video_id=video.file_id)
-        duration_sec = video.duration
-        await state.update_data(second=duration_sec)
         data = await state.get_data()
-        add_serial_db(data)
-        await message.answer("Serial qo'shildi!", reply_markup=admin_keyboard)
-        await state.set_state(AdminState.add_remove)
+        videos = data.get("videos", [])
+        seconds = data.get("seconds", [])
+        videos.append(video.file_id)
+        seconds.append(video.duration)
+        await state.update_data(videos=videos, seconds=seconds)
     else:
-        await message.answer("Iltimos video yuboring...")
+        await message.answer("Iltimos, video yuboring")
+
+
+
+
+
+    #
+    # if video:
+    #     await state.update_data(video_id=video.file_id)
+    #     duration_sec = video.duration
+    #     await state.update_data(second=duration_sec)
+    #     data = await state.get_data()
+    #     add_serial_db(data)
+    #     await message.answer("Serial qo'shildi!", reply_markup=admin_keyboard)
+    #     await state.set_state(AdminState.add_remove)
+    # else:
+    #     await message.answer("Iltimos video yuboring...")

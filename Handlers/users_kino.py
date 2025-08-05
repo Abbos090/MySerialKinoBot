@@ -100,7 +100,8 @@ async def read_kino_from_db(message: Message, state: FSMContext):
                     f"📆 {year}\n"
                     f"🕜 {hour} soat, {minute} daqiqa, {sec} soniya\n"
                     f"💎 {janr}\n"
-                    f"🌐 {language}\n"
+                    f"🌐 {language}\n\n"
+                    f"@seriallar_kinolar_olami bot haqida ma'lumot va muhokama uchun"
                 )
             else:
                 captions = (
@@ -110,7 +111,8 @@ async def read_kino_from_db(message: Message, state: FSMContext):
                     f"📆 {year}\n"
                     f"🕜 {minute} daqiqa, {sec} soniya\n"
                     f"💎 {janr}\n"
-                    f"🌐 {language}\n"
+                    f"🌐 {language}\n\n"
+                    f"@seriallar_kinolar_olami bot haqida ma'lumot va muhokama uchun"
                 )
             await message.answer_video(video=video_id, caption=captions)
 

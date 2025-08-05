@@ -23,6 +23,7 @@ def generate_caption(seria: tuple) -> str:
         f"🎭 Janr: {serial_janr}\n"
         f"📆 Yili: {serial_year}\n\n"
         f"🎞 Fasl: {serial_fasl} | Qism: {serial_qism}\n"
-        f"⏱ Davomiyligi: {duration}"
+        f"⏱ Davomiyligi: {duration}\n\n"
+        f"@seriallar_kinolar_olami bot haqida ma'lumot va muhokama uchun"
     )
     return caption
