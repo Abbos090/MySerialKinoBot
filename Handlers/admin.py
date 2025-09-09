@@ -31,12 +31,14 @@ async def start_handler(message: Message, state: FSMContext, bot: Bot):
         return
 
     if message.from_user.id in ADMINS:
-        await message.answer("Admin sifatida kirasizmi foydalanuvchimi ? :", reply_markup=admin)
+        await message.answer("Admin sifatida kirasizmi foydalanuvchimi ?", reply_markup=admin)
+        await state.set_state(ADMIN.for_admin)
 
 @router.message(ADMIN.for_admin)
 async def for_admin_handler(message: Message, state: FSMContext):
     if message.text == "Admin":
         await message.answer("Menu :", reply_markup=admin_keyboard)
+        await state.set_state(AdminState.add_remove)
     elif message.text == "Foydalanuvchi":
         await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb)
 
