@@ -6,11 +6,13 @@ from aiogram.types import Message, CallbackQuery
 from config import ADMINS
 from States.admin_add_states import AdminState, AdminCreateSerialState, AdminSerialAdd, AdminKinoAdd
 from States.admin_delete_states import AdminDelete, AdminDeleteSerial, AdminDeleteKino, AdminDeleteSerialQism
+from States.for_admin import ADMIN
 from Keyboards.admin_keyboards import admin_keyboard
 from Keyboards.select_serials_kb import get_serials_keyboard
 from Keyboards.delete_serial_kino_kb import delete_serial_kino
 from Keyboards.orqaga import orqaga
 from Keyboards.user_kino_serial import user_choose_kb
+from Keyboards.admin import admin
 
 from Utils.check_subs import check_user_subscriptions
 from Utils.check_sub_kb import confirm_subs_keyboard
@@ -29,11 +31,15 @@ async def start_handler(message: Message, state: FSMContext, bot: Bot):
         return
 
     if message.from_user.id in ADMINS:
-        await message.answer("Xush kelibsiz admin!", reply_markup=admin_keyboard)
-        await state.set_state(AdminState.add_remove)
-    else:
-        await message.answer(f"Xush kelibsiz {message.from_user.full_name}")
+        await message.answer("Admin sifatida kirasizmi foydalanuvchimi ? :", reply_markup=admin)
+
+@router.message(ADMIN.for_admin)
+async def for_admin_handler(message: Message, state: FSMContext):
+    if message.text == "Admin":
+        await message.answer("Menu :", reply_markup=admin_keyboard)
+    elif message.text == "Foydalanuvchi":
         await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb)
+
 
 
 @router.callback_query(F.data == "check_subs")
