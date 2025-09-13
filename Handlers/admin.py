@@ -40,7 +40,7 @@ async def for_admin_handler(message: Message, state: FSMContext):
         await message.answer("Menu :", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
     elif message.text == "Foydalanuvchi":
-        await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb)
+        await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb())
 
 
 
