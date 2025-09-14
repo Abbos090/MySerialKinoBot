@@ -36,11 +36,13 @@ async def start_handler(message: Message, state: FSMContext, bot: Bot):
 
 @router.message(ADMIN.for_admin)
 async def for_admin_handler(message: Message, state: FSMContext):
-    if message.text == "Admin":
+    if message.text == "Foydalanuvchi":
+        await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb)
+
+    elif message.text == "Admin":
         await message.answer("Menu :", reply_markup=admin_keyboard)
         await state.set_state(AdminState.add_remove)
-    elif message.text == "Foydalanuvchi":
-        await message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb())
+
 
 
 
@@ -56,11 +58,14 @@ async def confirm_subs_callback(callback: CallbackQuery, bot: Bot, state: FSMCon
         await callback.message.delete()
 
         if callback.from_user.id in ADMINS:
-            await callback.message.answer("Xush kelibsiz admin!", reply_markup=admin_keyboard)
-            await state.set_state(AdminState.add_remove)
+            # Faqat admin ekanligini bilsak ham, darrov admin menuga emas
+            # tanlov oynasiga yuboramiz
+            await callback.message.answer("Admin sifatida kirasizmi foydalanuvchimi ?", reply_markup=admin)
+            await state.set_state(ADMIN.for_admin)
         else:
             await callback.message.answer(f"Xush kelibsiz {callback.from_user.full_name}")
             await callback.message.answer("Kino kodini kiriting yoki tanlang :", reply_markup=user_choose_kb)
+
 
 
 # Admin menyusi: tanlashlar
